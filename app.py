@@ -34,12 +34,15 @@ def get_users():
     users_list = [user.to_dict() for user in users]
     return jsonify(users_list)
 
-@app.route('/users/<int:id>', methods = ['GET'])
+
+@app.route('/users/<int:id>', methods=['GET'])
 def get_user(id):
     user = User.query.get(id)
+
     if not user:
-        return jsonify({'Error' : 'User not found'}), 404
-    return jsonify(user.to_dict)
+        return jsonify({'error': 'User not found'}), 404
+
+    return jsonify(user.to_dict())
 
 
 @app.route('/users', methods=['POST'])
