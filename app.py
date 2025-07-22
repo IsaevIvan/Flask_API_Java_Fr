@@ -1,14 +1,13 @@
-from enum import unique
-
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'  # Файл БД
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
+CORS(app)
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -58,6 +57,10 @@ def add_user():
     db.session.commit()
 
     return jsonify({'message': 'User added!', 'user': new_user.to_dict()}), 201
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 
 if __name__ == '__main__':
