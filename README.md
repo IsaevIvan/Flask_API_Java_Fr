@@ -34,7 +34,7 @@
 bash
 pip install -r requirements.txt
 
-2.Запуск бэкенда (Flask-сервер)
+2. Запуск бэкенда (Flask-сервер)
 bash
 python app.py
 Сервер запустится на http://localhost:5000.
