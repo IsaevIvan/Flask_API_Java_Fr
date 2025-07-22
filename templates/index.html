@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Manager</title>
+    <!-- Подключаем Bootstrap для стилей -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .user-row { cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Список пользователей</h1>
+        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            Добавить пользователя
+        </button>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody id="usersTable">
+                <!-- Сюда вставим данные через JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Модальное окно для добавления пользователя -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавить пользователя</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="mb-3">
+                            <label class="form-label">Имя</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Добавить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем Bootstrap JS и наш скрипт -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Загружаем пользователей при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadUsers);
+
+        // Функция для загрузки пользователей
+        async function loadUsers() {
+            const response = await fetch('http://localhost:5000/users');
+            const users = await response.json();
+            const tableBody = document.getElementById('usersTable');
+            tableBody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.className = 'user-row';
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                `;
+                row.addEventListener('click', () => alert(`Пользователь: ${user.name}`));
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Обработка формы добавления
+        document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = {
+                name: e.target.name.value,
+                email: e.target.email.value
+            };
+
+            const response = await fetch('http://localhost:5000/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                alert('Пользователь добавлен!');
+                loadUsers();  // Обновляем список
+                e.target.reset();  // Очищаем форму
+                bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();  // Закрываем модалку
+            } else {
+                alert('Ошибка: ' + (await response.json()).error);
+            }
+        });
+    </script>
+</body>
+</html>
